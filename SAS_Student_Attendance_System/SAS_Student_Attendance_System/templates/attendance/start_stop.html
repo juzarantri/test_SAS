@@ -1,0 +1,55 @@
+{% extends 'home.html' %}
+{% block home_content %}
+<style type="text/css">
+    footer {
+        display: none;
+    }
+</style>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 align = "center" style="color: mediumvioletred;">Start/Stop Attendance</h5>
+                {% if error %}
+                    <p style="color: red;">{{ error }}</p>
+                {% endif %}
+                {% if user.is_staff %}
+                    <form action= "{% url 'signup' %}" method="post">{% csrf_token %}
+                        <div class="form-group row">
+                            <label for="tag1" class="col-sm-5 col-form-label">Branch:</label>
+                            <div class="col-sm-15">
+                                <input id="tag1" type="text" class="form-control" name="branch">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tag2" class="col-sm-5 col-form-label">Semester:</label>
+                            <div class="col-sm-15">
+                                <input id="tag2" type="text" class="form-control" name="sem">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tag3" class="col-sm-5 col-form-label">Subject:</label>
+                            <div class="col-sm-15">
+                                <input id="tag3" type="text" class="form-control" name="subject">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="tag4" class="col-sm-5 col-form-label">Date:</label>
+                            <div class="col-sm-15">
+                                <input id="tag4" type="date" class="form-control" name="date" >
+                            </div>
+                        </div>
+                        <div align = "center">
+                            <button type="submit" class="btn btn-primary">Start</button>
+                            <button type="submit" class="btn btn-primary">Stop</button>
+                        </div>
+                    </form>
+                {% else %}
+                    <p  align = "center" style="color: red;">Sorry you don't have access to this!!</p>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

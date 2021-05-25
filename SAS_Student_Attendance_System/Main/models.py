@@ -10,7 +10,15 @@ class Student(models.Model):
     branch = models.CharField(max_length=30)
     student_id = models.CharField(max_length=30, unique=True)
     roll_no = models.CharField(max_length=30, unique=True)
+    is_teacher = models.CharField(max_length=30, default="no")
     user = models.OneToOneField(User,on_delete=models.CASCADE,null=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username','phone_no','parents_phone_no','branch','roll_no']
+
+class Teacher(models.Model):
+    username = models.CharField(max_length=30, unique=True)
+    fullname = models.CharField(max_length=60)
+    phone_no = PhoneNumberField()
+    is_teacher = models.CharField(max_length=30, default="yes")
+    user = models.OneToOneField(User,on_delete=models.CASCADE,null=True)
 

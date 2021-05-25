@@ -4,11 +4,15 @@
         <h2>Homepage</h2>
         <p>Welcome {%if request.user.is_authenticated %} {{user.username }}, {% else %} Observer, {% endif %} to Student Attendance System</p>
     </div>
-    
+    {% block home_content %}
+    {% endblock %}
+    {%if request.user.is_authenticated %}
     <footer class="page-footer font-small blue fixed-bottom">
-        <div class="footer-copyright text-center py-3"><p><strong>Total students registered: </strong>{{count}}</p>
+        <div class="footer-copyright text-center py-0">
+            <p><strong>Total Students registered: </strong>{{count}}</p>
         </div>
-        <div class="footer-copyright text-center py-3">© 2021 Copyright:Student Attendance System
+        <div class="footer-copyright text-center py-0">© 2021 Copyright:Student Attendance System
         </div>      
-      </footer>
+    </footer>
+    {% endif %}
 {% endblock %}
