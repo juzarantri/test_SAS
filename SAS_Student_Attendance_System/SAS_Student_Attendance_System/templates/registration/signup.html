@@ -1,9 +1,82 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Sign up</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign Up </button>
-</form>
+<div class="row justify-content-center">
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 align = "center">Sign up</h2>
+                {% if error %}
+                    <p style="color: red;">{{ error }}</p>
+                {% endif %}
+                <form action= "{% url 'signup' %}" method="post">{% csrf_token %}
+                    <div class="form-group row">
+                        <label for="tag1" class="col-sm-5 col-form-label">Username:</label>
+                        <div class="col-sm-15">
+                             <input id="tag1" type="text" class="form-control" name="uname" placeholder="i.e. lucifer" >
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag2" class="col-sm-5 col-form-label">Fullname:</label>
+                        <div class="col-sm-15">
+                             <input id="tag2" type="text" class="form-control" name="fullname" placeholder="fullname">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag3" class="col-sm-5 col-form-label">Email:</label>
+                        <div class="col-sm-15">
+                             <input id="tag3" type="text" class="form-control" name="email" placeholder="abc@xyz.com">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag4" class="col-sm-5 col-form-label">Phone:</label>
+                        <div class="col-sm-15">
+                             <input id="tag4" type="number" class="form-control" name="phone_no" placeholder="+1 7896644133">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag5" class="col-sm-5 col-form-label">Parent's Phone:</label>
+                        <div class="col-sm-15">
+                             <input id="tag5" type="number" class="form-control" name="parent_phone_no" placeholder="+1 7896644133">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag6" class="col-sm-5 col-form-label">Branch:</label>
+                        <div class="col-sm-15">
+                             <input id="tag6" type="text" class="form-control" name="branch" placeholder="i.e. ce">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag7" class="col-sm-5 col-form-label">Student ID:</label>
+                        <div class="col-sm-15">
+                             <input id="tag7" type="text" class="form-control" name="student_id" placeholder="20ceuod000">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag8" class="col-sm-5 col-form-label">Roll NO.:</label>
+                        <div class="col-sm-15">
+                             <input id="tag8" type="text" class="form-control" name="roll_no" placeholder="200">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag9" class="col-sm-5 col-form-label">Password:</label>
+                        <div class="col-sm-15">
+                             <input tag="9" type="password" class="form-control" name="pass1" placeholder="******">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="tag10" class="col-sm-5 col-form-label">Confirm Password:</label>
+                        <div class="col-sm-15">
+                             <input id="tag10" type="password" class="form-control" name="pass2" placeholder="******">
+                        </div>
+                    </div>
+                    <div align = "center">
+                        <button type="submit" class="btn btn-primary">Sign Up </button>
+                    </div>
+                    
+                  </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

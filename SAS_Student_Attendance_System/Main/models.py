@@ -1,3 +1,16 @@
+from django.contrib.auth.models import AbstractUser, User
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
-# Create your models here.
+class Student(models.Model):
+    username = models.CharField(max_length=30, unique=True)
+    fullname = models.CharField(max_length=60)
+    phone_no = PhoneNumberField()
+    parents_phone_no = PhoneNumberField()
+    branch = models.CharField(max_length=30)
+    student_id = models.CharField(max_length=30, unique=True)
+    roll_no = models.CharField(max_length=30, unique=True)
+    user = models.OneToOneField(User,on_delete=models.CASCADE,null=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username','phone_no','parents_phone_no','branch','roll_no']
+
