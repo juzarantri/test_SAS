@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div align = "center">
-        <h2>Homepage</h2>
-        <p>Welcome {%if request.user.is_authenticated %} {{user.username }}, {% else %} Observer, {% endif %} to Student Attendance System</p>
+    <div align = "center" class="home">
+        <h2 id="h2">Homepage {{id}}</h2>
+        <p class="p">Welcome {%if request.user.is_authenticated %} {{user.username}}, {% else %} Observer, {% endif %} to Student Attendance System</p>
     </div>
     {% block home_content %}
     {% endblock %}
     {%if request.user.is_authenticated %}
     <footer class="page-footer font-small blue fixed-bottom">
         <div class="footer-copyright text-center py-0">
-            <p><strong>Total Students registered: </strong>{{count}}</p>
+            <p><strong>Total Students registered: </strong>{{count}} 
+            </p>
         </div>
         <div class="footer-copyright text-center py-0">© 2021 Copyright:Student Attendance System
         </div>      

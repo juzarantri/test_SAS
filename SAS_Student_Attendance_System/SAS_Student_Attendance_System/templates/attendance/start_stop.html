@@ -4,52 +4,91 @@
     footer {
         display: none;
     }
+    .form-select{
+        width: 56%;
+    }
+    .home h2{
+        display: none;
+    }
+    .home .p{
+        display: none;
+    }
 </style>
+<script> changeText() </script>
 <div class="row justify-content-center">
-    <div class="col-6">
+    <div class="col-8">
         <div class="card">
             <div class="card-body">
-                <h5 align = "center" style="color: mediumvioletred;">Start/Stop Attendance</h5>
+                <h4 align = "center" style="color: mediumvioletred;">Start/Stop Attendance</h4>
                 {% if error %}
-                    <p style="color: red;">{{ error }}</p>
+                    {% for err in error %}
+                        <p align = "center" style="color: red; margin: 0;">{{ err }}</p>
+                    {% endfor %}
                 {% endif %}
                 {% if user.is_staff %}
-                    <form action= "{% url 'signup' %}" method="post">{% csrf_token %}
+                    <form action= "" method="post">{% csrf_token %}
+                        <input type="hidden" name="teacher" value="{{user.username}}">
                         <div class="form-group row">
                             <label for="tag1" class="col-sm-5 col-form-label">Branch:</label>
                             <div class="col-sm-15">
-                                <input id="tag1" type="text" class="form-control" name="branch">
+                                <input id="tag1" type="text" class="form-control" name="branch" placeholder="i.e. CE">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="tag2" class="col-sm-5 col-form-label">Semester:</label>
-                            <div class="col-sm-15">
-                                <input id="tag2" type="text" class="form-control" name="sem">
-                            </div>
+                            <select class="col-sm-1 form-select " name="sem" aria-label="Default select example">
+                                <option selected>Select the semester</option>
+                                <option value="sem1">Sem 1</option>
+                                <option value="sem2">Sem 2</option>
+                                <option value="sem3">Sem 3</option>
+                                <option value="sem4">Sem 4</option>
+                                <option value="sem5">Sem 5</option>
+                                <option value="sem6">Sem 6</option>
+                              </select>
                         </div>
                         <div class="form-group row">
                             <label for="tag3" class="col-sm-5 col-form-label">Subject:</label>
                             <div class="col-sm-15">
-                                <input id="tag3" type="text" class="form-control" name="subject">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="tag4" class="col-sm-5 col-form-label">Date:</label>
-                            <div class="col-sm-15">
-                                <input id="tag4" type="date" class="form-control" name="date" >
+                                <input id="tag3" type="text" class="form-control" name="subject" placeholder="i.e. DAA">
                             </div>
                         </div>
                         <div align = "center">
-                            <button type="submit" class="btn btn-primary">Start</button>
-                            <button type="submit" class="btn btn-primary">Stop</button>
+                            <button type="submit" id="startBtn" formaction="{% url 'start_attendance' %}" class="btn btn-primary">Start</button>
                         </div>
+                        <h5 align = "center" style="color: green; margin-top: 5%;">{{message}}</h5>
                     </form>
                 {% else %}
                     <p  align = "center" style="color: red;">Sorry you don't have access to this!!</p>
                 {% endif %}
-                
+                <table class="table table-hover" style="margin-top: 10%;">
+                    <thead>
+                      <tr>
+                        <th scope="col"><h5>Current Running Attendance</h5></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% if on_going_attendance %}
+                            {% for on in on_going_attendance %}
+                                <tr align="center">
+                                    <td style="color: rgb(0, 41, 128);" scope="row">{{on}}</td>
+                                    <td><a href="">Stop</a></td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr align="center">
+                                <td scope="row"><a href="{% url 'refreshAttendanceTable' user.username %}">Refresh</a></td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                  </table>
             </div>
         </div>
     </div>
 </div>
+<script>
+    function BtnDisable(){
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+    }
+</script>
 {% endblock %}

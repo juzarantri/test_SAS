@@ -21,8 +21,8 @@
         }
     </style>
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+  <body style="background-color:whitesmoke;">
+    <nav style="color:red;" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">Student Attendance System</a>
@@ -34,9 +34,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'home' %}">Home</a>
                 </li>
+                {% if user.is_staff%}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'start_stop' %}">Start/Stop Attendance</a>
                 </li>
+                {% endif %}
                 </ul>
                 {% if user.is_authenticated %}
                     <ul class="navbar-nav">
@@ -53,8 +55,8 @@
                     </ul>
                 {% else %}
                     <form class="d-flex">
-                        <a href="{% url 'login' %}" class="btn btn-outline-secondary">Log In</a>&nbsp&nbsp&nbsp
-                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+                        <a href="{% url 'login' %}" >Log In</a>&nbsp&nbsp&nbsp
+                        <a href="{% url 'signup' %}" >Sign Up</a>
                     </form>
                 {% endif %}
             </div>

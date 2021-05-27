@@ -79,15 +79,20 @@ WSGI_APPLICATION = 'SAS_Student_Attendance_System.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    'students': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'USER': 'juzar',
-        'PASSWORD': 'Juzar@Antri1'
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # },
+    'default':{
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'student_attendance_system', # Name of the database*
+        'USER': 'ce3', #user name for the database
+        'PASSWORD': 'ce3', # password
+        'HOST': '', # IP address of the database
+        'PORT': '3306', # port number of database server
+        'OPTIONS':{
+            'init_command':"SET sql_mode = 'STRICT_TRANS_TABLES'"
+        }
     }
 }
 
