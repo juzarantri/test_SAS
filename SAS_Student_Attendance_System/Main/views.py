@@ -24,8 +24,6 @@ def registration_view(request):
                 error = []
                 User.objects.get(username=request.POST['uname'])
                 error.append("Username has already been taken")
-                Student.objects.get(phone_no=request.POST['phone_no'])
-                error.append("Phone NO. must be unique")
                 Student.objects.get(student_id=request.POST['student_id'])
                 error.append("Student id must be unique")
                 Student.objects.get(roll_no=request.POST['roll_no'])
@@ -43,11 +41,13 @@ def registration_view(request):
                 branch = request.POST['branch']
                 student_id = request.POST['student_id']
                 roll_no = request.POST['roll_no']
+                sem = request.POST['sem']
                 newStudent = Student(username = username,
                                           fullname = fullname,
                                           phone_no = phone_no,
                                           parents_phone_no = parent_phone_no,
                                           branch = branch,
+                                          semester = "sem"+sem,
                                           student_id = student_id,
                                           roll_no = roll_no,
                                           user = user)
@@ -119,22 +119,43 @@ def startAttendance(request):
             })
         else:
             cursor = connection.cursor()
-            cursor.execute("CREATE TABLE IF NOT EXISTS attendance_start_stop (branch VARCHAR(50), semester VARCHAR(50), subject VARCHAR(50), status INT, tableName VARCHAR(50), faculty VARCHAR(50));")
+            on_going_attendance = []
+            cursor.execute("CREATE TABLE IF NOT EXISTS attendance_start_stop (branch VARCHAR(50), semester VARCHAR(50), subject VARCHAR(50), status INT, tableName VARCHAR(50), faculty VARCHAR(50), FOREIGN KEY (faculty) REFERENCES main_teacher(username));")
             cursor.execute("SELECT * FROM attendance_start_stop WHERE tableName = '"+tblname+"' AND faculty = '"+teacher+"';")
             if cursor.fetchall():
-                cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE);")
+                cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE, time TIME);")
                 sql = "UPDATE attendance_start_stop SET status = 1 WHERE tableName = '"+tblname+"';"
-                cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
-                on_going_attendance = cursor.fetchall()
                 cursor.execute(sql)
+                cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
+                tableNames = cursor.fetchall()
+                for table in tableNames:
+                    temp = table
+                    s = ""
+                    for t in range(len(temp)):
+                        if table[t] == '(' or table[t] == ')' or table[t] == ',' or table[t] == "'" :
+                            pass
+                        else:
+                            s += table[t]
+                    table = s
+                    on_going_attendance.append(table)
             else:
-                cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE);")
+                cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE, time TIME);")
                 sql = "INSERT INTO attendance_start_stop VALUES(%s,%s,%s,%s,%s,%s);"
 
                 val = (branch,semester,subject,1,tblname,teacher)
                 cursor.execute(sql,val)
                 cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
-                on_going_attendance = cursor.fetchall()
+                tableNames = cursor.fetchall()
+                for table in tableNames:
+                    temp = table
+                    s = ""
+                    for t in range(len(temp)):
+                        if table[t] == '(' or table[t] == ')' or table[t] == ',' or table[t] == "'" :
+                            pass
+                        else:
+                            s += table[t]
+                    table = s
+                    on_going_attendance.append(table)
             return render(request,'attendance/start_stop.html',{
                 'message':"Attendance for "+branch+" "+semester+" "+subject+" has been started",
                 'on_going_attendance':on_going_attendance
@@ -144,54 +165,50 @@ def startAttendance(request):
 
 # stopping attendance
 @login_required(login_url='')
-def stopAttendance(request,table):
-        # table = table
-        # s = ""
-        # for t in range(len(table)):
-        #     if table[t] == '(' or table[t] == ')' or table[t] == ',' or table[t] == "'" :
-        #         pass
-        #     else:
-        #         s += table[t]
-        # table = s
-        error = []
-        error.append("table")
+def stopAttendance(request,table,teacher):
+        maintable = table
+        teacher = teacher
+        on_going_attendance = []
+        cursor = connection.cursor()
+        sql = "UPDATE attendance_start_stop SET status = 0 WHERE tableName = '"+table+"' AND faculty = '"+teacher+"';"       
+        cursor.execute(sql)
+        cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
+        tableNames = cursor.fetchall()
+        for table in tableNames:
+            temp = table
+            s = ""
+            for t in range(len(temp)):
+                if table[t] == '(' or table[t] == ')' or table[t] == ',' or table[t] == "'" :
+                    pass
+                else:
+                    s += table[t]
+                table = s
+                on_going_attendance.append(table)
         return render(request,'attendance/start_stop.html',{
-                # 'on_going_attendance': on_going_attendance,
-                'error':error,
+                'message':"Attendance for "+maintable+" has been stopped",
+                'on_going_attendance':on_going_attendance
         })
-        
-        # cursor = connection.cursor()
-        # # cursor.execute("SELECT tableName FROM attendance_start_stop WHERE tableName = '"+table+"';")
-        # if cursor.fetchall():
-        #     error = []
-        #     cursor = connection.cursor()
-        #     # sql = "UPDATE attendance_start_stop SET status = 0 WHERE tableName = '"+table+"';"        
-        #     # cursor.execute(sql)
-        #     # cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
-        #     # on_going_attendance = cursor.fetchall()
-        #     error.append(table)
-        #     return render(request,'attendance/start_stop.html',{
-        #         # 'on_going_attendance': on_going_attendance,
-        #         'error':error,
-        #     })
-        # else:
-        #     # cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
-        #     # on_going_attendance = cursor.fetchall()
-        #     error = []
-        #     error.append("Error while stopping attendance")
-        #     return render(request,'attendance/start_stop.html',{
-        #         'error': error,
-        #         # 'on_going_attendance':on_going_attendance,
-        #     })
 
 #refreshing table
 @login_required(login_url='')
 def refreshAttendanceTable(request,teacher):
     teacher = teacher
     cursor = connection.cursor()
-    cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+"teacher1"+"' AND status=1 ;")
-    on_going_attendance = cursor.fetchall()
-    if on_going_attendance:
+    cursor.execute("CREATE TABLE IF NOT EXISTS attendance_start_stop (branch VARCHAR(50), semester VARCHAR(50), subject VARCHAR(50), status INT, tableName VARCHAR(50), faculty VARCHAR(50), FOREIGN KEY (faculty) REFERENCES main_teacher(username));")
+    cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status=1 ;")
+    tableNames = cursor.fetchall()
+    on_going_attendance = []
+    for table in tableNames:
+        temp = table
+        s = ""
+        for t in range(len(temp)):
+            if table[t] == '(' or table[t] == ')' or table[t] == ',' or table[t] == "'" :
+                pass
+            else:
+                s += table[t]
+        table = s
+        on_going_attendance.append(table)
+    if tableNames:
         return render(request,'attendance/start_stop.html',{
         'on_going_attendance': on_going_attendance,
     })
@@ -201,3 +218,46 @@ def refreshAttendanceTable(request,teacher):
         return render(request,'attendance/start_stop.html',{
             'error': error,
         })
+
+# Make Attendance page
+@login_required(login_url='')
+def makeAttendance(request):
+    return render(request,'attendance/make_attendance.html')
+
+def refreshStudentAttendanceTable(request,username):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM main_student WHERE username = '"+username+"';")
+    temp = cursor.fetchall()
+    for t in temp:
+        branch = t[5]
+        sem = t[10]
+    cursor.execute("SELECT tableName FROM attendance_start_stop WHERE semester = '"+sem+"' AND branch = '"+branch+"';")
+    tableNames = cursor.fetchall()
+    on_going_attendance = []
+    for table in tableNames:
+        temp = table
+        s = ""
+        for t in range(len(temp)):
+            if table[t] == '(' or table[t] == ')' or table[t] == ',' or table[t] == "'" :
+                pass
+            else:
+                s += table[t]
+        table = s
+        on_going_attendance.append(table)
+    if tableNames:
+        return render(request,'attendance/make_attendance.html',{
+        'on_going_attendance': on_going_attendance,
+    })
+    else:
+        error = []
+        error.append("OOPS! seems no attandance has been started")
+        return render(request,'attendance/make_attendance.html',{
+        'error': error,
+    })
+
+# student clicks present
+def clickedPresent(request,table,student):
+    error = []
+    error.append(table)
+    error.append(student)
+    return render(request,'attendance/make_attendance.html',{'error':error})

@@ -38,6 +38,10 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'start_stop' %}">Start/Stop Attendance</a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'make_attendance' %}">Make Attendance</a>
+                </li>
                 {% endif %}
                 </ul>
                 {% if user.is_authenticated %}
@@ -55,8 +59,8 @@
                     </ul>
                 {% else %}
                     <form class="d-flex">
-                        <a href="{% url 'login' %}" >Log In</a>&nbsp&nbsp&nbsp
-                        <a href="{% url 'signup' %}" >Sign Up</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary">Log In</a>&nbsp&nbsp&nbsp
+                        <a href="{% url 'signup' %}" class="btn btn-outline-secondary">Sign Up</a>
                     </form>
                 {% endif %}
             </div>

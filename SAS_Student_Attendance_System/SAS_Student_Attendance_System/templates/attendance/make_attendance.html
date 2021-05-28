@@ -1,0 +1,61 @@
+{% extends 'home.html' %}
+{% block home_content %}
+<style type="text/css">
+    footer {
+        display: none;
+    }
+    .form-select{
+        width: 56%;
+    }
+    .home h2{
+        display: none;
+    }
+    .home .p{
+        display: none;
+    }
+</style>
+<script> changeText() </script>
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 align = "center" style="color: mediumvioletred;">Make Attendance</h4>
+                {% if error %}
+                    {% for err in error %}
+                        <p align = "center" style="color: red; margin: 0;">{{ err }}</p>
+                    {% endfor %}
+                {% endif %}
+                <table class="table table-hover" style="margin-top: 10%;">
+                    <thead>
+                      <tr>
+                        <th scope="col"><h5>Current Running Attendance</h5></th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% if on_going_attendance %}
+                            {% for on in on_going_attendance %}
+                                <tr>
+                                    <td style="color: rgb(0, 41, 128);" scope="row">{{on}}</td>
+                                    <td scope="row"><a href="{% url 'clickedPresent' on user.username %}" class="btn btn-danger">Present</a></td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr align="center">
+                                <td scope="row"><a href="{% url 'refreshStudentAttendanceTable' user.username %}">Refresh</a></td>
+                                <td></td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function BtnDisable(){
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+    }
+</script>
+{% endblock %}

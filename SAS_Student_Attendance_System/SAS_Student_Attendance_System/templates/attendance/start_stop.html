@@ -55,7 +55,7 @@
                         <div align = "center">
                             <button type="submit" id="startBtn" formaction="{% url 'start_attendance' %}" class="btn btn-primary">Start</button>
                         </div>
-                        <h5 align = "center" style="color: green; margin-top: 5%;">{{message}}</h5>
+                        <h5 align = "center" style="color: rgb(128, 73, 0); margin-top: 5%;">{{message}}</h5>
                     </form>
                 {% else %}
                     <p  align = "center" style="color: red;">Sorry you don't have access to this!!</p>
@@ -64,14 +64,15 @@
                     <thead>
                       <tr>
                         <th scope="col"><h5>Current Running Attendance</h5></th>
+                        <th scope="col"></th>
                       </tr>
                     </thead>
                     <tbody>
                         {% if on_going_attendance %}
                             {% for on in on_going_attendance %}
-                                <tr align="center">
+                                <tr>
                                     <td style="color: rgb(0, 41, 128);" scope="row">{{on}}</td>
-                                    <td><a href="">Stop</a></td>
+                                    <td scope="row"><a href="{% url 'stop_attendance' on user.username %}" class="btn btn-danger">Stop</a></td>
                                 </tr>
                             {% endfor %}
                         {% else %}

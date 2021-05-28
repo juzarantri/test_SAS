@@ -8,6 +8,7 @@ class Student(models.Model):
     phone_no = PhoneNumberField()
     parents_phone_no = PhoneNumberField()
     branch = models.CharField(max_length=30)
+    semester = models.CharField(max_length=30, default="empty")
     student_id = models.CharField(max_length=30, unique=True)
     roll_no = models.CharField(max_length=30, unique=True)
     is_teacher = models.CharField(max_length=30, default="no")

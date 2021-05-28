@@ -11,6 +11,9 @@ urlpatterns = [
     path('teacher/',views.teacher_registration_view,name ="teacher"),
     path('start_stop/',views.start_stop,name ="start_stop"),
     re_path('start_attendance/',views.startAttendance,name ="start_attendance"),
-    re_path('stop_attendance/table/',views.stopAttendance,name ="stop_attendance"),
-    url(r'^refreshAttendanceTable/(?P<teacher>\w+)/$',views.refreshAttendanceTable,name="refreshAttendanceTable")
+    url(r'^make_attendance/$',views.makeAttendance,name ="make_attendance"),
+    url(r'^stop_attendance/(?P<table>\w+)/(?P<teacher>\w+)/$',views.stopAttendance,name="stop_attendance"),
+    url(r'^refreshAttendanceTable/(?P<teacher>\w+)/$',views.refreshAttendanceTable,name="refreshAttendanceTable"),
+    url(r'^refreshStudentAttendanceTable/(?P<username>\w+)/$',views.refreshStudentAttendanceTable,name="refreshStudentAttendanceTable"),
+    url(r'^clickedPresent/(?P<table>\w+)/(?P<student>\w+)/$',views.clickedPresent,name="clickedPresent")
 ]
