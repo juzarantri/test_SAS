@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 import django.utils.timezone as timezone
 from django.contrib.auth.decorators import login_required
+from datetime import date,datetime
 
 # home page
 def home(request):
@@ -104,7 +105,7 @@ def startAttendance(request):
         semester = request.POST['sem']
         subject = request.POST['subject']
         teacher = request.POST['teacher']
-        tblname = branch+"_"+semester+"_"+subject+"_"+str(timezone.now().year)
+        tblname = branch+"_"+semester+"_"+subject
         error = []
         error = []
         if branch == '':
@@ -123,7 +124,7 @@ def startAttendance(request):
             cursor.execute("CREATE TABLE IF NOT EXISTS attendance_start_stop (branch VARCHAR(50), semester VARCHAR(50), subject VARCHAR(50), status INT, tableName VARCHAR(50), faculty VARCHAR(50), FOREIGN KEY (faculty) REFERENCES main_teacher(username));")
             cursor.execute("SELECT * FROM attendance_start_stop WHERE tableName = '"+tblname+"' AND faculty = '"+teacher+"';")
             if cursor.fetchall():
-                cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE, time TIME);")
+                cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE, time TIME, FOREIGN KEY (student_id) REFERENCES main_student(student_id),FOREIGN KEY (roll_no) REFERENCES main_student(roll_no));")
                 sql = "UPDATE attendance_start_stop SET status = 1 WHERE tableName = '"+tblname+"';"
                 cursor.execute(sql)
                 cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
@@ -214,7 +215,7 @@ def refreshAttendanceTable(request,teacher):
     })
     else:
         error = []
-        error.append("No Record Found")
+        error.append("You haven't started any attendance yet!!")
         return render(request,'attendance/start_stop.html',{
             'error': error,
         })
@@ -257,7 +258,53 @@ def refreshStudentAttendanceTable(request,username):
 
 # student clicks present
 def clickedPresent(request,table,student):
-    error = []
-    error.append(table)
-    error.append(student)
-    return render(request,'attendance/make_attendance.html',{'error':error})
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM "+table+" WHERE student_id = '"+student+"' AND date = '"+str(date.today())+"';" )
+    if cursor.fetchall():
+        error = []
+        error.append("You are alerady present")
+        return render(request,'attendance/make_attendance.html',{'error':error})
+    else:
+        cursor.execute("SELECT * FROM main_student WHERE username = '"+student+"';")
+        data = cursor.fetchall()
+        for d in data:
+            temp = connection.cursor()
+            sql = "INSERT INTO "+table+" VALUES(%s,%s,%s,%s,%s,%s);"
+            val = (d[2],student,d[7],1,date.today(),datetime.now())
+            temp.execute(sql,val)
+            # temp.execute("INSERT INTO "+table+" VALUES('das', '20ceuod026', '203', 1, "+date.today()+", "+datetime.now()+";)")
+        return render(request,'attendance/make_attendance.html',{'message':"Your Attendance have been successfull recognized for "+table})
+
+# view attendance
+def viewAttendance(request):
+    return render(request,"attendance/view_attendance.html")
+
+# get attendance
+def getAttendance(request,username):
+    if request.method == "POST":
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM main_student WHERE username = '"+username+"';")
+        temp = cursor.fetchall()
+        attendanceData = []
+        for t in temp:
+            branch = t[5]
+            sem = t[10]
+        tblname = branch+"_"+sem+"_"+request.POST['subject']
+        cursor.execute("SELECT tableName FROM attendance_start_stop WHERE tableName = '"+tblname+"';")
+        if cursor.fetchall():
+            cursor.execute("SELECT present,date,time FROM "+tblname+" WHERE student_id = '"+username+"';")
+            for temp in cursor.fetchall():
+                t = {"present":temp[0],"date":temp[1],"time":temp[2]}
+                attendanceData.append(t) 
+            return render(request,"attendance/view_attendance.html",{
+                'attendanceData':attendanceData,
+                'message':"Your attendance in "+request.POST['subject']+" is as follows:"
+            })
+        else:
+            error = []
+            error.append("No details found for "+request.POST['subject'])
+            return render(request,"attendance/view_attendance.html",{
+                'error':error
+            })
+    else:
+        return render(request,"attendance/view_attendance.html")

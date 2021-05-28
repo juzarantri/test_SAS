@@ -15,5 +15,7 @@ urlpatterns = [
     url(r'^stop_attendance/(?P<table>\w+)/(?P<teacher>\w+)/$',views.stopAttendance,name="stop_attendance"),
     url(r'^refreshAttendanceTable/(?P<teacher>\w+)/$',views.refreshAttendanceTable,name="refreshAttendanceTable"),
     url(r'^refreshStudentAttendanceTable/(?P<username>\w+)/$',views.refreshStudentAttendanceTable,name="refreshStudentAttendanceTable"),
-    url(r'^clickedPresent/(?P<table>\w+)/(?P<student>\w+)/$',views.clickedPresent,name="clickedPresent")
+    url(r'^clickedPresent/(?P<table>\w+)/(?P<student>\w+)/$',views.clickedPresent,name="clickedPresent"),
+    path('view_attendance/',views.viewAttendance,name ="view_attendance"),
+    url(r'^get_attendance/(?P<username>\w+)/$',views.getAttendance,name="get_attendance"),
 ]

@@ -1,0 +1,70 @@
+{% extends 'home.html' %}
+{% block home_content %}
+<style type="text/css">
+    footer {
+        display: none;
+    }
+    .form-select{
+        width: 56%;
+    }
+    .home h2{
+        display: none;
+    }
+    .home .p{
+        display: none;
+    }
+</style>
+<script> changeText() </script>
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div class="card">
+            <div class="card-body">
+                <h4 align = "center" style="color: mediumvioletred;">View Attendance</h4>
+                {% if error %}
+                    {% for err in error %}
+                        <p align = "center" style="color: red; margin: 0;">{{ err }}</p>
+                    {% endfor %}
+                {% endif %}
+                <form method="post">{% csrf_token %}
+                    <div class="form-group row">
+                        <label for="tag1" class="col-sm-5 col-form-label">Subject:</label>
+                        <div class="col-sm-15">
+                            <input id="tag1" type="text" class="form-control" name="subject" placeholder="i.e. DSA">
+                        </div>
+                    </div>
+                    <div align = "center">
+                        <button type="submit" name="submit" formaction="{% url 'get_attendance' user.username %}" class="btn btn-primary">View</button>
+                    </div>
+                </form>
+                <h5 align = "center" style="color: rgb(128, 73, 0); margin-top: 5%;">{{message}}</h5>
+                <table class="table table-hover" style="margin-top: 5%;">
+                    <thead>
+                      <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Present</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% if attendanceData %}
+                            {% for data in attendanceData %}
+                                <tr>
+                                    <td style="color: rgb(0, 41, 128);" scope="row">{{data.date}}</td>
+                                    <td style="color: rgb(0, 41, 128);" scope="row">{{data.time}}</td>
+                                    <td style="color: rgb(0, 41, 128);" scope="row">{% if data.present == 1 %}<p style="color: rgb(6, 235, 6); margin: 0%;"><b>P</b></p>{% else %}<p style="color: red; margin: 0%;"><b>A</b></p>{%endif%}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function BtnDisable(){
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+    }
+</script>
+{% endblock %}
