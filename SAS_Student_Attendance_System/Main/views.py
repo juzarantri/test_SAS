@@ -270,6 +270,7 @@ def refreshAttendanceTable(request,teacher):
 def makeAttendance(request):
     return render(request,'attendance/make_attendance.html')
 
+@login_required(login_url='')
 def refreshStudentAttendanceTable(request,username):
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM main_student WHERE username = '"+username+"';")
@@ -302,6 +303,7 @@ def refreshStudentAttendanceTable(request,username):
     })
 
 # student clicks present
+@login_required(login_url='')
 def clickedPresent(request,table,student):
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM "+table+" WHERE student_id = '"+student+"' AND date = '"+str(date.today())+"' AND present = 1;" )
@@ -316,10 +318,12 @@ def clickedPresent(request,table,student):
         return render(request,'attendance/make_attendance.html',{'message':"Your Attendance have been successfull recognized for "+table})
 
 # view attendance
+@login_required(login_url='')
 def viewAttendance(request):
     return render(request,"attendance/view_attendance.html")
 
 # get attendance
+@login_required(login_url='')
 def getAttendance(request,username):
     if request.method == "POST":
         cursor = connection.cursor()
