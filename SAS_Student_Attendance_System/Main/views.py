@@ -21,40 +21,63 @@ def home(request):
 def registration_view(request):
     if request.method == 'POST':
         if request.POST['pass1'] == request.POST['pass2']:
-            try:
-                error = []
-                User.objects.get(username=request.POST['uname'])
-                error.append("Username has already been taken")
-                Student.objects.get(student_id=request.POST['student_id'])
-                error.append("Student id must be unique")
-                Student.objects.get(roll_no=request.POST['roll_no'])
-                error.append("Roll NO. must be unique")
-                return render(request,'registration/signup.html',{
-                'error': error
-                })
-            except User.DoesNotExist:
-                username = request.POST['uname']
-                email = request.POST['email']
-                user = User.objects.create_user(username = username,password = request.POST['pass1'],email = email)
-                fullname = request.POST['fullname'] 
                 phone_no = request.POST['phone_no']
                 parent_phone_no = request.POST['parent_phone_no']
-                branch = request.POST['branch']
                 student_id = request.POST['student_id']
                 roll_no = request.POST['roll_no']
-                sem = request.POST['sem']
-                newStudent = Student(username = username,
-                                          fullname = fullname,
-                                          phone_no = phone_no,
-                                          parents_phone_no = parent_phone_no,
-                                          branch = branch,
-                                          semester = "sem"+sem,
-                                          student_id = student_id,
-                                          roll_no = roll_no,
-                                          user = user)
-                newStudent.save()
-                login(request,user)
-                return redirect('home')
+                email = request.POST['email']
+                error = []
+                cursor = connection.cursor()
+                cursor.execute("SELECT * FROM auth_user")
+                for temp in cursor.fetchall():
+                    if temp[4] == request.POST['uname']:
+                        error.append("Username has already been taken")
+                    if temp[7] == email:
+                        error.append("Email has already been taken")
+                if phone_no == parent_phone_no:
+                    error.append("Your's and Parent's phone number cannot be same")
+                cursor = connection.cursor()
+                cursor.execute("SELECT * FROM main_student")
+                for temp in cursor.fetchall():
+                    if temp[3] == phone_no:
+                        error.append("Phone number must be unique")
+                        break
+                    if temp[4] == parent_phone_no:
+                        error.append("Phone number must be unique")
+                        break
+                    if temp[6] == student_id:
+                        error.append("Student id must be unique")
+                        break
+                    if temp[7] == roll_no:
+                        error.append("Roll NO. must be unique")
+                        break
+                if error:   
+                    return render(request,'registration/signup.html',{
+                    'error': error
+                    })
+                else:
+                    username = request.POST['uname']
+                    email = request.POST['email']
+                    user = User.objects.create_user(username = username,password = request.POST['pass1'],email = email)
+                    fullname = request.POST['fullname'] 
+                    phone_no = request.POST['phone_no']
+                    parent_phone_no = request.POST['parent_phone_no']
+                    branch = request.POST['branch']
+                    student_id = request.POST['student_id']
+                    roll_no = request.POST['roll_no']
+                    sem = request.POST['sem']
+                    newStudent = Student(username = username,
+                                            fullname = fullname,
+                                            phone_no = phone_no,
+                                            parents_phone_no = parent_phone_no,
+                                            branch = branch,
+                                            semester = "sem"+sem,
+                                            student_id = student_id,
+                                            roll_no = roll_no,
+                                            user = user)
+                    newStudent.save()
+                    login(request,user)
+                    return redirect('home')
         else:
             return render(request,'registration/signup.html',{
             'error': "Password Don't Match"
@@ -107,7 +130,6 @@ def startAttendance(request):
         teacher = request.POST['teacher']
         tblname = branch+"_"+semester+"_"+subject
         error = []
-        error = []
         if branch == '':
             error.append("Branch must not be empty")
         if semester == "Select the semester":
@@ -125,6 +147,18 @@ def startAttendance(request):
             cursor.execute("SELECT * FROM attendance_start_stop WHERE tableName = '"+tblname+"' AND faculty = '"+teacher+"';")
             if cursor.fetchall():
                 cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE, time TIME, FOREIGN KEY (student_id) REFERENCES main_student(student_id),FOREIGN KEY (roll_no) REFERENCES main_student(roll_no));")
+                today = date.today()
+                d = today.strftime("%Y-%m-%d")
+                cursor.execute("SELECT * FROM "+tblname+" WHERE date = '"+d+"';")
+                if cursor.fetchall():
+                    pass
+                else:
+                    cursor.execute("SELECT * FROM main_student WHERE branch = '"+branch+"' AND semester = '"+semester+"';")
+                    data = cursor.fetchall()
+                    for d in data:
+                        sql = "INSERT INTO "+tblname+" VALUES(%s,%s,%s,%s,%s,%s);"
+                        val = (d[2],d[1],d[7],0,date.today(),datetime.now())
+                        cursor.execute(sql,val)
                 sql = "UPDATE attendance_start_stop SET status = 1 WHERE tableName = '"+tblname+"';"
                 cursor.execute(sql)
                 cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
@@ -141,8 +175,19 @@ def startAttendance(request):
                     on_going_attendance.append(table)
             else:
                 cursor.execute("CREATE TABLE IF NOT EXISTS "+tblname+" (name VARCHAR(50), student_id VARCHAR(50), roll_no VARCHAR(50), present INT, date DATE, time TIME);")
+                today = date.today()
+                d = today.strftime("%Y-%m-%d")
+                cursor.execute("SELECT * FROM "+tblname+" WHERE date = '"+d+"';")
+                if cursor.fetchall():
+                    pass
+                else:
+                    cursor.execute("SELECT * FROM main_student WHERE branch = '"+branch+"' AND semester = '"+semester+"';")
+                    data = cursor.fetchall()
+                    for d in data:
+                        sql = "INSERT INTO "+tblname+" VALUES(%s,%s,%s,%s,%s,%s);"
+                        val = (d[2],d[1],d[7],0,date.today(),datetime.now())
+                        cursor.execute(sql,val)
                 sql = "INSERT INTO attendance_start_stop VALUES(%s,%s,%s,%s,%s,%s);"
-
                 val = (branch,semester,subject,1,tblname,teacher)
                 cursor.execute(sql,val)
                 cursor.execute("SELECT tableName FROM attendance_start_stop WHERE faculty = '"+teacher+"' AND status = 1 ;")
@@ -232,7 +277,7 @@ def refreshStudentAttendanceTable(request,username):
     for t in temp:
         branch = t[5]
         sem = t[10]
-    cursor.execute("SELECT tableName FROM attendance_start_stop WHERE semester = '"+sem+"' AND branch = '"+branch+"';")
+    cursor.execute("SELECT tableName FROM attendance_start_stop WHERE semester = '"+sem+"' AND branch = '"+branch+"' AND status = '1';")
     tableNames = cursor.fetchall()
     on_going_attendance = []
     for table in tableNames:
@@ -259,20 +304,15 @@ def refreshStudentAttendanceTable(request,username):
 # student clicks present
 def clickedPresent(request,table,student):
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM "+table+" WHERE student_id = '"+student+"' AND date = '"+str(date.today())+"';" )
+    cursor.execute("SELECT * FROM "+table+" WHERE student_id = '"+student+"' AND date = '"+str(date.today())+"' AND present = 1;" )
     if cursor.fetchall():
         error = []
         error.append("You are alerady present")
         return render(request,'attendance/make_attendance.html',{'error':error})
     else:
-        cursor.execute("SELECT * FROM main_student WHERE username = '"+student+"';")
-        data = cursor.fetchall()
-        for d in data:
-            temp = connection.cursor()
-            sql = "INSERT INTO "+table+" VALUES(%s,%s,%s,%s,%s,%s);"
-            val = (d[2],student,d[7],1,date.today(),datetime.now())
-            temp.execute(sql,val)
-            # temp.execute("INSERT INTO "+table+" VALUES('das', '20ceuod026', '203', 1, "+date.today()+", "+datetime.now()+";)")
+        today = date.today()
+        d = today.strftime("%Y-%m-%d")
+        cursor.execute("UPDATE "+table+" SET present = 1, time = '"+str(datetime.now())+"' WHERE student_id = '"+student+"' AND date = '"+d+"';")
         return render(request,'attendance/make_attendance.html',{'message':"Your Attendance have been successfull recognized for "+table})
 
 # view attendance
